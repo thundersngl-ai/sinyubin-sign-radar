@@ -1,0 +1,23 @@
+name: Daily autograph search
+on:
+  schedule:
+    - cron: "0 3 * * *" # 12:00 KST
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch public RSS search results
+        run: python scripts/daily_search.py
+      - name: Commit updated results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results.json
+          git diff --cached --quiet || (git commit -m "Update daily search results" && git push)

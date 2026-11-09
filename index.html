@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10233f"><title>신유빈 사인 레이더</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--navy:#10233f;--blue:#2859a5;--bg:#f2f5fa;--ink:#17243a;--muted:#69778d;--line:#e1e8f1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,"Noto Sans KR",sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#10233f,#2b568f);color:white;padding:23px 17px 20px;border-radius:0 0 23px 23px}
+.wrap{max-width:850px;margin:auto;padding:15px}h1{font-size:22px;margin:0}header p{font-size:13px;color:#dce8f8;margin:6px 0 0}
+h2{font-size:16px;margin:0}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;margin:12px 0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.muted{font-size:12px;color:var(--muted);line-height:1.55}
+button{border:0;border-radius:10px;background:var(--blue);color:white;padding:10px 13px;font-weight:650;cursor:pointer}
+button.alt{background:#edf2fa;color:#23436e}input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+label{font-size:12px;color:var(--muted);display:block;margin:9px 0 5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.wide{grid-column:1/-1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f7f9fd;border-radius:12px;padding:11px}.stat b{display:block;font-size:21px;color:var(--blue)}.stat span{font-size:11px;color:var(--muted)}
+.list{display:grid;gap:9px;margin-top:12px}.item{border:1px solid var(--line);border-radius:12px;padding:12px}.item h3{font-size:14px;margin:0 0 6px}.tag{display:inline-block;background:#edf2fa;color:#31517c;border-radius:99px;padding:4px 8px;font-size:11px;margin:0 4px 5px 0}.tag.ok{background:#e5f5ec;color:#1c7044}.tag.warn{background:#fff3d9;color:#8b610c}
+.item a{font-size:12px;color:var(--blue);font-weight:650}.empty{text-align:center;padding:17px;background:#f8faff;border-radius:11px;color:var(--muted);font-size:13px}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
+</style></head>
+<body>
+<header><div class="wrap" style="padding:0"><h1>🏓 신유빈 사인 레이더</h1><p>매일 공개 검색 결과를 모으고, 친필 여부는 증거로 따로 확인해요.</p></div></header>
+<main class="wrap">
+<section class="panel">
+ <div class="row"><h2>오늘의 자동 검색 결과</h2><span id="updated" class="muted">검색 결과 확인 중…</span></div>
+ <p class="muted">GitHub Actions가 하루 한 번 공개 RSS 검색 결과를 갱신하도록 구성할 수 있어요. 모든 중고거래 사이트를 자동 검색하는 것은 아니며, 아래 결과도 실제 판매 중인지 직접 확인해야 해요.</p>
+ <div class="stats"><div class="stat"><b id="autoCount">0</b><span>자동 검색 결과</span></div><div class="stat"><b id="manualCount">0</b><span>내가 저장한 매물</span></div><div class="stat"><b id="verifiedCount">0</b><span>친필 확인</span></div></div>
+ <div id="autoResults" class="list"><div class="empty">자동 검색 결과 파일(results.json)을 연결하면 여기에 표시돼요.</div></div>
+</section>
+<section class="panel">
+ <h2>🔎 거래 사이트 직접 검색</h2><p class="muted">사이트별 검색 페이지를 열어볼 수 있어요. 자동 검색이 불가능한 사이트는 이 방식으로 확인해 주세요.</p>
+ <div class="row"><button onclick="go('bunjang')">번개장터</button><button onclick="go('joongna')">중고나라</button><button onclick="go('naver')">네이버</button><button class="alt" onclick="go('ebay')">eBay</button></div>
+</section>
+<section class="panel">
+ <div class="row"><h2>➕ 발견한 매물 저장</h2></div>
+ <div class="grid">
+  <div class="wide"><label>매물 제목</label><input id="title" placeholder="예: 신유빈 친필 사인 탁구공"></div>
+  <div><label>가격</label><input id="price" placeholder="예: 150,000원"></div>
+  <div><label>종류</label><select id="kind"><option>사진</option><option>탁구공</option><option>라켓</option><option>유니폼</option><option>기타</option></select></div>
+  <div><label>친필 확인</label><select id="auth"><option>미확인</option><option>판매자 주장</option><option>근거 있음</option><option>친필 확인</option><option>친필 아님</option></select></div>
+  <div><label>판매처</label><input id="seller" placeholder="판매 사이트"></div>
+  <div class="wide"><label>매물 링크</label><input id="url" placeholder="https://..."></div>
+  <div class="wide"><label>인증 증거 / 메모</label><textarea id="memo" rows="2" placeholder="사인 사진, 구매 경로, 인증서 등"></textarea></div>
+ </div>
+ <div class="row" style="margin-top:11px"><button onclick="add()">저장</button><button class="alt" onclick="exportData()">백업 다운로드</button></div>
+ <div id="saved" class="list"></div>
+</section>
+<section class="panel">
+ <h2>🔔 태블릿 알림</h2><p class="muted">브라우저 알림 권한을 요청합니다. 자동 검색 결과가 갱신될 때마다 알림을 보내는 기능은 서버 푸시 설정을 추가해야 하며, 이 기본 버전은 브라우저를 열었을 때 새 결과를 확인합니다.</p>
+ <button onclick="notify()">알림 권한 허용</button>
+</section>
+<section class="panel">
+ <h2>⚙️ 자동 검색 연결 안내</h2>
+ <p class="muted">이 ZIP에는 GitHub Actions용 매일 실행 워크플로와 공개 Google News RSS 검색 스크립트가 포함돼 있어요. GitHub 저장소에 올리고 Pages를 켜면 정적 앱으로 공개할 수 있어요. 검색 결과는 뉴스/웹 색인 중심이므로, 중고거래 사이트 전체를 빠짐없이 찾는 검색기가 아닙니다.</p>
+</section>
+</main>
+<script>
+const KEY='sy-radar-v2';let saved=JSON.parse(localStorage.getItem(KEY)||'[]');
+function go(s){let q=encodeURIComponent('"신유빈" (친필 OR 싸인 OR 사인)');let u={bunjang:'https://m.bunjang.co.kr/search/products?q='+q,joongna:'https://web.joongna.com/search/'+q,naver:'https://search.naver.com/search.naver?query='+q,ebay:'https://www.ebay.com/sch/i.html?_nkw='+q};window.open(u[s],'_blank','noopener')}
+function add(){let title=v('title');if(!title){alert('제목을 입력해 주세요.');return}saved.unshift({title,price:v('price'),kind:v('kind'),auth:v('auth'),seller:v('seller'),url:safe(v('url')),memo:v('memo'),date:new Date().toLocaleDateString('ko-KR')});localStorage.setItem(KEY,JSON.stringify(saved));['title','price','seller','url','memo'].forEach(x=>document.getElementById(x).value='');renderSaved()}
+function v(id){return document.getElementById(id).value.trim()}function safe(x){try{let u=new URL(x);return ['http:','https:'].includes(u.protocol)?u.href:''}catch(e){return ''}}
+function esc(x){return String(x||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderSaved(){document.getElementById('manualCount').textContent=saved.length;document.getElementById('verifiedCount').textContent=saved.filter(x=>x.auth==='친필 확인').length;document.getElementById('saved').innerHTML=saved.length?saved.map((x,i)=>`<article class="item"><h3>${esc(x.title)}</h3><span class="tag ${x.auth==='친필 확인'?'ok':x.auth==='미확인'?'warn':''}">${esc(x.auth)}</span><span class="tag">${esc(x.kind)}</span><div class="muted">${esc(x.price)} · ${esc(x.seller)} · ${esc(x.date)}<br>${esc(x.memo)}</div>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">매물 페이지 열기 ↗</a>`:''}<button class="alt" style="float:right" onclick="del(${i})">삭제</button></article>`).join(''):'<div class="empty">아직 저장한 매물이 없어요.</div>'}
+function del(i){saved.splice(i,1);localStorage.setItem(KEY,JSON.stringify(saved));renderSaved()}
+function exportData(){let b=new Blob([JSON.stringify(saved,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='sinyubin-signs-backup.json';a.click();URL.revokeObjectURL(a.href)}
+async function notify(){if(!('Notification'in window)){alert('이 브라우저는 알림을 지원하지 않습니다.');return}let p=await Notification.requestPermission();alert(p==='granted'?'알림 권한이 허용됐어요.':'알림 권한이 허용되지 않았어요.')}
+async function loadResults(){try{let r=await fetch('./results.json?'+Date.now());if(!r.ok)throw 0;let d=await r.json();let arr=d.items||[];document.getElementById('autoCount').textContent=arr.length;document.getElementById('updated').textContent=d.updated_at?'갱신: '+d.updated_at:'검색 결과';document.getElementById('autoResults').innerHTML=arr.length?arr.map(x=>`<article class="item"><h3>${esc(x.title)}</h3><span class="tag">자동 검색</span><span class="tag warn">친필 미확인</span><div class="muted">${esc(x.source||'공개 RSS')} · ${esc(x.published||'날짜 미상')}</div><a href="${esc(x.link)}" target="_blank" rel="noopener">원문 확인 ↗</a></article>`).join(''):'<div class="empty">현재 자동 검색 결과가 없습니다.</div>'}catch(e){document.getElementById('updated').textContent='자동 검색 미연결'}}
+renderSaved();loadResults();
+</script></main></body></html>

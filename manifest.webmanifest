@@ -1,0 +1,9 @@
+{
+  "name": "신유빈 사인 레이더",
+  "short_name": "사인 레이더",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f2f5fa",
+  "theme_color": "#10233f",
+  "lang": "ko"
+}
